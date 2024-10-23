@@ -23,9 +23,6 @@ classifiers = [
 
 
 [project.urls]
-Homepage = "https://pycord.dev"
-Changelog = "https://docs.pycord.dev/en/master/changelog.html"
-Source = "https://github.com/Pycord-Development/pycord"
-Documentation = "https://docs.pycord.dev"
-Tracker = "https://github.com/Pycord-Development/pycord/issues"
-Funding = "https://patreon.com/pycord"
+Homepage = "https://github.com/plun1331/HyTek"
+Source = "https://github.com/plun1331/HyTek
+Tracker = "https://github.com/plun1331/HyTek/issues"
