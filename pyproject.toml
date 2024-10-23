@@ -24,5 +24,5 @@ classifiers = [
 
 [project.urls]
 Homepage = "https://github.com/plun1331/HyTek"
-Source = "https://github.com/plun1331/HyTek
+Source = "https://github.com/plun1331/HyTek"
 Tracker = "https://github.com/plun1331/HyTek/issues"
