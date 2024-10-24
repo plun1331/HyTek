@@ -1,7 +1,7 @@
 import zipfile
 from logging import warning
 
-from records import Hy3Record, RECORD_TYPES
+from .records import Hy3Record, RECORD_TYPES
 
 
 __all__ = ("Hy3File",)
