@@ -405,7 +405,6 @@ class Hy3F3Record(Hy3Record):
 class Hy3G1Record(Hy3Record):
     record_type = "G1"
     fields = [
-        Field(name="gender", length=1),
         Field(name="split_1_unk", length=1),
         Field(name="split_1_lengths", length=2),
         Field(name="split_1_time", length=8),
