@@ -92,7 +92,7 @@ class Hy3Record:
     fields: list[Field]
     data: dict[str, Any]
     raw: bytes
-    children: list[Type[Hy3Record]] = []
+    children: list[Type[Hy3Record | Hy3RecordGroup]] = []
 
     def __init__(self, raw: bytes = b"", /, **kwargs):
         self.data: dict[str, Any] = kwargs
@@ -101,6 +101,12 @@ class Hy3Record:
 
     def __repr__(self):
         return f"<{self.__class__.__name__} children={self.children}>"
+
+    def __getitem__(self, item: str) -> Any:
+        return self.data[item]
+
+    def __setitem__(self, item: str, value: Any) -> None:
+        self.data[item] = value
 
     def append_child(self, child: Type[Hy3RecordGroup | Hy3Record]) -> None:
         if child.record_type < self.record_type:
@@ -272,8 +278,8 @@ class Hy3D1Record(Hy3Record):
         Field(name="first_name", length=20),
         Field(name="preferred_name", length=20),
         Field(name="middle_initial", length=1),
-        Field(name="id", length=17),
-        Field(name="unk", length=2),  # random 2 nums b4 bday?
+        Field(name="id", length=14),
+        Field(name="unk", length=5),  # random 4 nums b4 bday?
         Field(name="date_of_birth", length=8, type=date),
         Field(name="age", length=3, type=int),
         #      0       USA         N
