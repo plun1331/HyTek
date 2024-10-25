@@ -294,7 +294,7 @@ class Hy3E1Record(Hy3Record):
         Field(name="swimmer_gender", length=1),
         Field(name="swimmer_db_id", length=5),
         Field(name="swimmer_name_short", length=5),
-        Field(name="gender", length=2),  # MM, FW, XX
+        Field(name="gender", length=2),  # MM, FW, XX, MB, FG
         Field(name="distance", length=6, type=int),
         Field(name="stroke_id", length=1),
         Field(name="lower_age", length=3, type=int),
