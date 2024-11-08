@@ -30,6 +30,16 @@ __all__ = (
 )
 
 
+ALLOWED_CHILDREN = {
+    "A": ["B"],
+    "B": ["C"],
+    "C": ["D", "F"],
+    "D": ["E"],
+    "E": ["G", "H"],
+    "F": ["G", "H"],
+}
+
+
 class Field:
     def __init__(self, *, name: str, length: int, type: Callable[[str], Any] = str):
         self.name = name
@@ -46,9 +56,12 @@ class Hy3RecordGroup:
     def __repr__(self):
         return f"<Hy3RecordGroup group_type={self.group_type} records={self.records}>"
 
+    def _child_allowed(self, child: Hy3Record | Hy3RecordGroup) -> bool:
+        return child.record_type[0] in ALLOWED_CHILDREN.get(self.record_type[0], [])
+
     def append_child(self, child: Hy3Record | Hy3RecordGroup) -> None:
-        if child.record_type < self.group_type:
-            raise Exception("Child record type is less than parent")
+        if not self._child_allowed(child):
+            raise Exception("Child record type is not allowed in this parent.")
         self.children.append(child)
 
     def remove_child(self, child: Hy3Record | Hy3RecordGroup) -> None:
@@ -74,9 +87,16 @@ class Hy3RecordGroup:
     def record_type(self) -> str:
         return self.records[-1].record_type
 
-    def add_to_group(self, record: Type[Hy3Record]) -> Self:
+    def _group_allowed(self, record: Type[Hy3Record]) -> bool:
         if record.record_type[0] != self.group_type:
-            raise Exception("Record type does not match group type")
+            return False
+        if int(record.record_type[1]) <= int(self.records[-1].record_type[1]):
+            return False
+        return True
+
+    def add_to_group(self, record: Type[Hy3Record]) -> Self:
+        if not self._group_allowed(record):
+            raise Exception("Cannot group records")
         self.records.append(record)
         return self
 
@@ -108,9 +128,12 @@ class Hy3Record:
     def __setitem__(self, item: str, value: Any) -> None:
         self.data[item] = value
 
+    def _child_allowed(self, child: Type[Hy3Record | Hy3RecordGroup]) -> bool:
+        return child.record_type[0] in ALLOWED_CHILDREN.get(self.record_type[0], [])
+
     def append_child(self, child: Type[Hy3RecordGroup | Hy3Record]) -> None:
-        if child.record_type < self.record_type:
-            raise Exception("Child record type is less than parent")
+        if not self._child_allowed(child):
+            raise Exception("Child record type is not allowed in this parent.")
         self.children.append(child)
 
     def remove_child(self, child: Type['Hy3Record']) -> None:
@@ -124,9 +147,16 @@ class Hy3Record:
         for child in self.children:
             child.print_tree(depth + 1)
 
-    def add_to_group(self, record: Type[Hy3Record]) -> Hy3RecordGroup:
+    def _group_allowed(self, record: Type[Hy3Record]) -> bool:
         if record.record_type[0] != self.record_type[0]:
-            raise Exception("Record type does not match group type")
+            return False
+        if int(record.record_type[1]) <= int(self.record_type[1]):
+            return False
+        return True
+
+    def add_to_group(self, record: Type[Hy3Record]) -> Hy3RecordGroup:
+        if not self._group_allowed(record):
+            raise Exception("Cannot group records")
         group = Hy3RecordGroup(self, record)
         return group
 

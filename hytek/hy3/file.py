@@ -1,7 +1,7 @@
 import zipfile
 from logging import warning
 
-from .records import Hy3Record, RECORD_TYPES
+from .records import Hy3Record, Hy3RecordGroup, RECORD_TYPES
 
 
 __all__ = ("Hy3File",)
@@ -32,7 +32,6 @@ class Hy3File:
         if self.file is None:
             self.file = open(self.filepath, "rb")
         parents = []
-        last_record = None
         records = []
         data = self.file.read()
         for i, line in enumerate(data.splitlines()):
@@ -46,33 +45,31 @@ class Hy3File:
                 records.append(record)
                 continue
 
-            if last_record:
-                # Hy3RecordGroup
-                if last_record.record_type[0] == record.record_type[0] and last_record.record_type[1] < record.record_type[1]:
-                    last_record = last_record.add_to_group(record)
-                    if parents:
-                        parent = parents[-2]
-                        parent.children[-1] = last_record
-                        parents[-1] = last_record
-                    else:
-                        parents.append(last_record)
-                        records.append(last_record)
-                    continue
-            last_record = record
-
+            done = False
             while parents:
                 parent = parents[-1]
-                if parent.record_type >= record.record_type:
-                    parents.pop()
-                else:
+                if parent._child_allowed(record):  # child record
+                    parent.append_child(record)
+                    parents.append(record)
+                    done = True
                     break
-            if parents:
-                parent = parents[-1]
-                parent.append_child(record)
-                parents.append(record)
-            else:
+                elif parent._group_allowed(record): # group record?
+                    group = parent.add_to_group(record)
+                    parents[-1] = group
+                    # get the group's parent
+                    # should be the record immediately before
+                    # the group record
+                    group_parent = parents[-2]
+                    # update children of the group's parent
+                    group_parent.children[-1] = group
+                    done = True
+                    break
+                parents.pop()
+            if not done:
                 records.append(record)
                 parents.append(record)
+            pass
+
         self.records = records
         self.file.close()
         self.file = None
