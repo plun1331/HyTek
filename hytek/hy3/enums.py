@@ -7,3 +7,4 @@ class Stroke(Enum):
     BREAST = "C"
     FLY = "D"
     IM = "E"
+    DIVE = "F"
