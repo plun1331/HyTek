@@ -1,6 +1,6 @@
 [project]
 name = "hytek"
-version = "0.0.6"
+version = "0.0.7"
 description = "A simple tool for parsing and manipulating HyTek files."
 readme = { content-type = "text/markdown", file = "README.md" }
 requires-python = ">=3.12"
