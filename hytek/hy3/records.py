@@ -108,10 +108,10 @@ class Hy3RecordGroup:
 
 
 class Hy3Record:
-    record_type: str
-    fields: list[Field]
-    data: dict[str, Any]
-    raw: bytes
+    record_type: str = ""
+    fields: list[Field] = []
+    data: dict[str, Any] = {}
+    raw: bytes = b""
     children: list[Type[Hy3Record | Hy3RecordGroup]] = []
 
     def __init__(self, raw: bytes = b"", /, **kwargs):
@@ -204,14 +204,16 @@ class Hy3Record:
             return cls(line)
         given_checksum = line[-2:]
         if cls.calculate_checksum(line[:-2]) != given_checksum:
-            print(line, type(line))
             raise Exception("Bad checksum")
         params = {}
         index = 2
         for field in cls.fields:
             data = line[index:index + field.length]
             index += field.length
-            params[field.name] = field.type(data.decode("utf-8", errors="replace").strip())
+            try:
+                params[field.name] = field.type(data.decode("utf-8", errors="replace").strip())
+            except Exception as e:
+                raise Exception(f"Failed to parse field {field.name} as {field.type.__name__}: {e}") from e
         return cls(line, **params)
 
     @staticmethod
@@ -297,6 +299,7 @@ class Hy3C3Record(Hy3Record):
     fields = []
     # here for completeness, contains contact info
 
+# one of the files i have has a C8 record
 
 # Swimmer data
 class Hy3D1Record(Hy3Record):
